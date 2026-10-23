@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict'),T=require('./dist/topology.js');
+const feature=ring=>({type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[ring]}});
+const a=feature([[0,0],[2,0],[2,1],[1,1],[1,3],[0,3],[0,0]]),b=feature([[2,0],[3,0],[3,3],[1,3],[1,1],[2,1],[2,0]]);
+const config={toGrid:p=>p,fromGrid:p=>p,iterations:2},out=T.smoothCoverage([a,b],config);
+const segments=f=>f.geometry.coordinates.flatMap(r=>r.slice(1).map((p,i)=>[JSON.stringify(r[i]),JSON.stringify(p)].sort().join('|')));
+const as=new Set(segments(out.features[0])),shared=segments(out.features[1]).filter(s=>as.has(s));assert(shared.length>5,'Entire rounded internal arc must be shared, not leave gaps');
+const points=out.features.flatMap(f=>f.geometry.coordinates.flat());assert(points.some(p=>p[0]%1!==0||p[1]%1!==0),'Corners must be rounded');
+for(const endpoint of [[2,0],[1,3]])assert(out.features.every(f=>f.geometry.coordinates[0].some(p=>p[0]===endpoint[0]&&p[1]===endpoint[1])),'Junctions must remain fixed');
+const square=T.smoothCoverage([feature([[0,0],[1,0],[1,1],[0,1],[0,0]])],config).features[0].geometry.coordinates[0];assert.deepEqual(square[0],square.at(-1));assert(square.length>8);
+const donut={...feature([[0,0],[4,0],[4,4],[0,4],[0,0]]),geometry:{type:'Polygon',coordinates:[[[0,0],[4,0],[4,4],[0,4],[0,0]],[[1,1],[1,3],[3,3],[3,1],[1,1]]]}};
+const fill=feature([[1,1],[3,1],[3,3],[1,3],[1,1]]),holes=T.smoothCoverage([donut,fill],config).features;
+const holeSegments=new Set(segments(holes[0]));assert(segments(holes[1]).every(s=>holeSegments.has(s)),'Hole and filling polygon must share identical rounded arc');
+assert.equal(a.geometry.coordinates[0].length,7,'Analytical geometry must not be mutated');
+console.log('Topologia: fronteiras partilhadas, junções, anéis, ilhas e geometria original verificados.');

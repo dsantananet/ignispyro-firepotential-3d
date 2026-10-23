@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),S=require('./dist/stations.js'),M=require('./dist/mtg.js');
+const cat=[{geometry:{type:'Point',coordinates:[-7,40]},properties:{idEstacao:1,localEstacao:'Teste'}}];
+const rows=S.ipma(cat,{'2026-10-23T12:00':{'1':{intensidadeVentoKM:-99,idDireccVento:4}},'2026-10-23T13:00':{'1':{intensidadeVentoKM:10,idDireccVento:9}}});
+assert.equal(rows[0].rows.length,1);assert.equal(rows[0].rows[0].from,0,'IPMA class9 is North');
+assert.throws(()=>S.atTime(rows[0],new Date('2026-10-23T14:00Z'),Date.parse('2026-10-23T15:00Z')),'No extrapolation across missing observation hours');
+assert.equal(S.atTime(rows[0],new Date('2026-10-23T13:00Z'),Date.parse('2026-10-23T13:05Z')).speed,10);
+assert.equal(S.aldeia({stations:[{station_key:'aldeia:IALDEI10',latitude:40,longitude:-7,observed_at:'2026-10-23T14:00:00+01:00',wind_speed_kmh:0,wind_direction_deg:41} ]})[0].rows[0].time,'2026-10-23T13:00:00.000Z');
+const raw={type:'FeatureCollection',source:'MTG',features:[{type:'Feature',geometry:{type:'Point',coordinates:[-7,40]},properties:{observed_at:'2026-10-23T13:00:00Z',frp_mw:4}}]},mtg=M.normalize(raw);
+assert.equal(M.windowAt(mtg,new Date('2026-10-23T13:15Z')).features.length,1);assert.equal(M.windowAt(mtg,new Date('2026-10-23T14:15Z')).features.length,0);
+assert.throws(()=>M.normalize({...raw,source:'VIIRS'}));assert.throws(()=>M.normalize({...raw,features:[{...raw.features[0],properties:{observed_at:'2026-10-23T13:00:00',frp_mw:4}}]}));
+console.log('IPMA/Aldeia/MTG: nodata, rumo, UTC, cobertura temporal e origem verificados.');

@@ -1,0 +1,18 @@
+{
+  "id": "ignispyro-firepotential-3d",
+  "name": "IGNISPYRO FirePotential 3D",
+  "version": "0.2.0",
+  "area": "Platform",
+  "status": "experimental",
+  "url": "https://dsantananet.github.io/ignispyro-firepotential-3d/",
+  "repository": "https://github.com/dsantananet/ignispyro-firepotential-3d",
+  "schema": "firepotential/1.0",
+  "launch_parameters": ["lat", "lon", "time", "radius"],
+  "products": ["analytical_grid_polygons", "rounded_display_polygons", "geometric_adjacencies", "wind_vectors", "solar_incidence", "optional_MTG_detections"],
+  "operational": false,
+  "solver_ready": false,
+  "credentials_required": false,
+  "observations": ["IPMA public hourly stations", "IGNISPYRO IALDEI10 public observation projection"],
+  "forecast": "ECMWF IFS 0.25deg via Open-Meteo, 10m above ground",
+  "not_implemented": ["WindNinja execution", "operational fire spread", "verified MTG real-time feed"]
+}

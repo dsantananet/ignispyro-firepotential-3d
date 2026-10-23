@@ -1,4 +1,32 @@
-# IGNISPYRO · Polígonos potenciais 3D
+# IGNISPYRO FirePotential 3D
+
+Aplicação: https://dsantananet.github.io/ignispyro-firepotential-3d/ · Repositório: https://github.com/dsantananet/ignispyro-firepotential-3d
+
+## Versão 0.2 — vento por hora, estações e integração
+
+- Logótipo principal oficial fornecido pelo utilizador, com proporções preservadas. Identidade e marca IGNISPYRO mantêm os seus direitos.
+- Fronteiras arredondadas por arcos partilhados (Chaikin, duas iterações); junções fixas. A geometria analítica original em grelha permanece separada. Uma curva que separa dois polígonos é calculada uma única vez e reutilizada pelos dois.
+- Previsão horária ECMWF IFS 0,25° a 10 m via Open-Meteo, quatro dias, por localização. Interpolação das meias horas em u/v; nunca se interpolam graus diretamente nem se extrapola fora da cobertura. Origem, validade e consulta são exportadas; emissão/corrida do modelo não fornecidas pelo endpoint ficam nulas. Vento regional aplicado uniformemente ao domínio, sem correção WindNinja.
+- Portugal: 227 estações do catálogo IPMA à data da implementação e a estação Aldeia/IALDEI10. A contagem pode mudar com o catálogo oficial. Observações horárias IPMA usam classes oficiais de direção; -99 é dado ausente. A Aldeia usa uma projeção pública dos dados já recolhidos pelo IGNISPYRO, sem exportar credenciais WU. Seleção e distância à origem visíveis. O modo observação exige hora compatível (até 30 minutos após a leitura), sem transformar observações em previsões. A altura do vento da Aldeia não está verificada e permanece nula. Dados antigos conservam as suas horas.
+- MTG: imagem oficial FRP LSA SAF por WMS, com hora escolhida dentro da dimensão temporal disponível. O produto está em demonstração, frequência 10 min e latência publicada até 45 min; não é garantia de deteção ou vigilância operacional. Deteções pontuais importadas/snapshot têm hora, FRP e origem próprios; não são perímetros nem alimentam automaticamente o solver. A ausência de deteções não prova ausência de fogo.
+- GitHub Actions verifica o código e publica `dist/` no Pages. A agenda consulta observações públicas aos minutos 17/47, sujeita à disponibilidade/atrasos do GitHub e dos fornecedores. O navegador atualiza catálogos/MTG a cada cinco minutos enquanto visível. A previsão é consultada por zona e guardada por 15 min.
+- Se uma fonte falhar, mantém-se a identificação de dados ausentes/antigos. A imagem MTG usa diretamente o serviço oficial; o ficheiro pontual `data/mtg.geojson` é um snapshot inicial, não um fluxo garantido.
+
+### Contrato para o simulador
+
+Abrir `/?lat=40.3211&lon=-7.6129&time=2026-10-24T14%3A00%3A00Z&radius=3`. Coordenadas WGS84; `time` ISO com fuso; raio 1–5 km. Só devem ser enviados os parâmetros que o utilizador pretende abrir no mapa; nunca tokens, utilizadores ou resultados privados em URLs públicas.
+
+Exportação: GeoJSON `metadata.schema_version = firepotential/1.0`. `kind=potential_polygon` contém geometrias analíticas; `potential_polygon_display` contém os mesmos IDs com contornos arredondados. `adjacency` contém `from`/`to` e comprimento aproximado original; vento, direção aproximada e deteções MTG são feições separadas. As métricas analíticas não são recalculadas a partir do desenho arredondado. `solver_ready=false` permanece explícito. O método JavaScript `window.FirePotential3D.getScenario()` permite integração em contexto autorizado da mesma origem; não existe difusão por `postMessage` para origens arbitrárias.
+
+O módulo do simulador valida o contrato e acrescenta uma abertura contextual do mapa; não substitui nem retreina o motor científico existente. A utilização operacional requer validação própria.
+
+### Fontes e atribuições atuais
+
+- IPMA API, dados horários e classes de rumo: https://api.ipma.pt/ . Catálogo/observações públicas; conservar identificação da fonte, hora e condições de utilização.
+- ECMWF via Open-Meteo, documentação: https://open-meteo.com/en/docs . Dados de previsão distribuídos por Open-Meteo; consultar os termos aplicáveis ao uso comercial.
+- EUMETSAT LSA SAF (2025): *MTG Fire Radiative Power - Pixel, V.1*, CC BY 4.0. Produto em demonstração: https://lsa-saf.eumetsat.int/en/data/products/fire-products/mtfrp/ . WMS oficial: https://adaguc.lsasvcs.ipma.pt/adaguc-server?DATASET=MTG-FRP&SERVICE=WMS&REQUEST=GetCapabilities . Transformação: seleção temporal e representação cartográfica; dados pontuais convertidos do arquivo IGNISPYRO existente para GeoJSON.
+
+Verificações adicionais: `node test-topology.cjs`, `node test-weather.cjs`, `node test-data.cjs`. A descrição abaixo documenta a versão inicial e os limites científicos que permanecem aplicáveis; o modo inicial atual é previsão horária na data presente.
 
 Protótipo experimental independente, centrado na Torre, Serra da Estrela. Não altera o simulador IGNISPYRO existente. Não é ferramenta validada para decisão operacional.
 

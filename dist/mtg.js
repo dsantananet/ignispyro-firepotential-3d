@@ -1,0 +1,8 @@
+(function(root){'use strict';
+function normalize(raw){if(raw?.type!=='FeatureCollection'||!Array.isArray(raw.features)||raw.features.length>50000)throw Error('MTG requer FeatureCollection até 50 000 pontos.');
+ const features=raw.features.map(f=>{const p=f.properties||{},c=f.geometry?.coordinates,time=p.observed_at||p.time;if(f.geometry?.type!=='Point'||!Array.isArray(c)||!Number.isFinite(c[0])||!Number.isFinite(c[1])||Math.abs(c[0])>180||Math.abs(c[1])>90||typeof time!=='string'||!/T.*(?:Z|[+-]\d\d:\d\d)$/.test(time)||!Number.isFinite(Date.parse(time))||!/^MTG(?:\b|_)/i.test(String(p.source||raw.source||'')))throw Error('Cada deteção requer Point WGS84, origem MTG e observed_at com fuso.');const frp=p.frp_mw;if(frp!==null&&frp!==undefined&&(!Number.isFinite(frp)||frp<0))throw Error('FRP inválido.');return {type:'Feature',geometry:{type:'Point',coordinates:c.slice(0,2)},properties:{kind:'mtg_detection',source:String(p.source||raw.source),observed_at:new Date(time).toISOString(),frp_mw:frp??null,quality:p.quality??null,sensor:String(p.sensor||'MTG')}};});
+ return {type:'FeatureCollection',features,source:'MTG',retrieved_at:raw.retrieved_at||null,latest_observation:features.length?features.map(f=>f.properties.observed_at).sort().at(-1):null};
+}
+function windowAt(collection,date){const end=date.getTime(),start=end-3600000;return {...collection,features:collection.features.filter(f=>{const t=Date.parse(f.properties.observed_at);return t>=start&&t<=end;})};}
+const api={normalize,windowAt};root.CPSMTG=api;if(typeof module!=='undefined')module.exports=api;
+})(typeof globalThis!=='undefined'?globalThis:window);
