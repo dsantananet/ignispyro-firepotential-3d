@@ -25,3 +25,5 @@ const vm=require('node:vm'),fs=require('node:fs');
 const scope={location:{hostname:'example.test',pathname:'/'},turf:{bbox:()=>[-7.61,40.32,-7.61,40.32]}};vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'dist/ninja.js'),'utf8'),scope);
 const request=scope.CPSNinja.requestFor({origin:{geometry:{type:'Point',coordinates:[-7.61,40.32]}},radius:3,time:valid.time,hours:3,vegetation:'trees',fuel_model:5,moisture:{live:.9}});
 assert.equal(request.vegetation,'grass');assert.equal(request.hours,3);assert(!('fuel_model' in request));assert(!('moisture' in request));
+
+const toward=C.referenceBearing('wind',C.uniform(180,20),180,180);assert.equal(toward,0);assert.equal(C.classify({slope:25,uphill:0,aspect:180},{alt:35,az:180},toward,C.uniform(180,20)).cps,3);assert.equal(C.classify({slope:25,uphill:180,aspect:0},{alt:20,az:180},toward,C.uniform(180,20)).cps,1);assert.equal(request.travel_mode,'wind');

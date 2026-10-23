@@ -34,6 +34,7 @@ function classify(t,sun,travel,wind){
  return {wind_regime,slope_regime,solar_regime,wind_angle_deg:wa,slope_angle_deg:sa,cps:Number(w)+Number(s)+Number(a),mask:Number(w)*4+Number(s)*2+Number(a),wind_ok:w,slope_ok:s,sun_ok:a,incidence,wind_speed:windSpeed*3.6,wind_from:wrap(toward+180)};
 }
 function uniform(from,speed){const a=wrap(from+180)*rad;return {u:Math.sin(a)*speed/3.6,v:Math.cos(a)*speed/3.6};}
-const api={solar,terrain,classify,uniform,wrap,delta,circularMean};
+function referenceBearing(mode,wind,radial,fixed){if(mode==='wind')return wrap(Math.atan2(wind.u,wind.v)/rad);if(mode==='fixed')return wrap(fixed);return wrap(radial);}
+const api={referenceBearing,solar,terrain,classify,uniform,wrap,delta,circularMean};
 root.CPS=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:window);

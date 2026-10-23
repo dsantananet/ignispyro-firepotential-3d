@@ -39,7 +39,7 @@ Com Node.js instalado, executar `node serve.cjs` nesta pasta e abrir http://127.
 1. Explorar o mapa com arrasto e zoom; usar Vista 2D/3D e a bússola. Origem inicial na Torre.
 2. Escolher Marcar ponto ou Desenhar polígono; no segundo caso, clicar vértices, Desfazer vértice e Concluir desenho. O polígono representa o perímetro inicial. Centro da vista usa o centro do mapa como nova origem. Raio entre 1 e 5 km.
 3. Definir vento de origem em graus e km/h. Setas escuras apontam para o destino do vento. Clicar nas setas para os valores. Este cenário uniforme não é uma execução WindNinja.
-4. Escolher propagação de referência radial para o exterior ou um azimute definido pelo analista. Setas verdes mostram essa referência.
+4. Escolher o sentido de referência: vento local (por defeito), azimute do analista ou radial exterior (opção explícita). A posição da origem não deve inverter artificialmente o avanço numa vertente. Setas verdes mostram a referência nos modos exploratórios.
 5. Escolher data e hora UTC. A orientação da vertente permanece fixa; posição do Sol, incidência e componente solar do CPS mudam com a hora. As alterações recalculam o cenário. No verão em Portugal continental, hora civil = UTC+1.
 6. Alternar camada CPS, incidência solar, orientação ou declive. Consultar IDs para detalhes e lista de adjacentes. Exportar GeoJSON com origem, polígonos, ligações, setas e metadados.
 
@@ -86,13 +86,15 @@ Sete opções: OpenTopoMap, OpenStreetMap, Híbrido Esri, Satélite Esri sem nom
 
 ## Atualização 0.4 — motor web e base de dados
 
-Entrada protegida no NAS: https://100.83.124.1:8181/firepotential/ (mesma conta e permissão do simulador). O NAS envia os pedidos ao workflow privado `web-firepotential.yml` do repositório `ignispyro-simulator`; WindNinja, relevo, polígonos, adjacências e propagação são calculados no GitHub. O serviço NAS apenas recolhe e valida o JSON com checksum e persiste na base PostGIS, esquema `firepotential`, com resultados associados à conta e chaves estrangeiras para as ligações. Não executa o solver localmente.
+Entrada protegida no NAS: https://100.83.124.1:8181/firepotential/ (mesma conta e permissão do simulador). O NAS envia os pedidos ao workflow privado `web-firepotential.yml` do repositório `ignispyro-simulator`; WindNinja, relevo, polígonos e adjacências são calculados no GitHub. O serviço NAS apenas recolhe e valida o JSON com checksum e persiste na base PostGIS, esquema `firepotential`, com resultados associados à conta e chaves estrangeiras para as ligações. Não executa o solver localmente.
 
 A credencial de servidor preexistente foi verificada no próprio NAS e reutilizada por montagem só de leitura. Não é necessário copiar a credencial do computador. O limite de armazenamento de artefactos GitHub foi encontrado nos testes; o workflow calcula tudo num único runner e emite JSON comprimido, limitado e com SHA-256 nos registos privados, que o NAS recolhe automaticamente. Os rasters intermédios ficam no runner, e o resultado durável fica no PostGIS.
 
 Polígonos distinguem vento favorável/contrário/transversal, subida/descida/transversal/plano e incidência solar. Subir contra o vento e descer com o vento podem ter igual pontuação e mantêm combinações distintas. Com propagação ativada, a agregação também conserva classe ROS e direção calculadas; igualdade de classe não significa ROS numericamente idêntico em todos os pontos. As adjacências são sempre reconstruídas a partir da grelha dos polígonos finais, removendo contactos internos e duplicados.
 
-Propagação exige escolha explícita de combustível Anderson uniforme e humidade hipotética; a interface diz que não é um mapa observado de combustíveis. Vento, terreno e hora têm fontes reais; o cenário de combustível/humidade não recebe falsa validação operacional. Resultados guardados e épocas horárias podem ser reabertos pela interface web. GitHub Pages mantém a visualização pública e o botão para abrir a zona no motor web.
+O FirePotential calcula apenas alinhamentos. O simulador é separado e poderá consumir os resultados; combustível, humidade e propagação física não fazem parte desta interface. Resultados e épocas horárias podem ser reabertos e reproduzidos sem novos cálculos. GitHub Pages mantém a visualização pública e o botão para abrir a zona no motor web.
 
 ## FirePotential independente — alinhamentos
 A aplicação calcula apenas vento, declive, exposição solar horária e adjacência. Não escolhe vegetação, combustível ou humidade nem executa propagação física. WindNinja exige uma rugosidade aerodinâmica: usa-se terreno aberto fixo, como hipótese técnica declarada, sem mapa de vegetação. O simulador é um consumidor futuro separado.
+
+Referência de direção (24/10): vento local por defeito; radial e azimute são explícitos e enviados ao GitHub. Os resultados antigos conservam a referência radial original. A exposição solar indica incidência geométrica horária, não mede disponibilidade ou humidade da vegetação.
