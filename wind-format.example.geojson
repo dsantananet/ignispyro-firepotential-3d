@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","wind_source":"EXEMPLO SINTETICO - NAO WindNinja","height_m":10,"valid_time":"2026-08-15T14:00:00Z","features":[{"type":"Feature","properties":{"u":3.9,"v":-3.9},"geometry":{"type":"Point","coordinates":[-7.6129,40.3211]}}]}

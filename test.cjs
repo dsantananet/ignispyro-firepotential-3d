@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),C=require('./dist/core.js');
+const noon=C.solar(new Date('2026-03-20T12:00:00Z'),0,0);
+assert(noon.alt>87,'Equinox noon near equator must be near zenith');
+assert(C.solar(new Date('2026-03-20T00:00:00Z'),0,0).alt< -87);
+const wind=C.uniform(270,36);assert(Math.abs(wind.u-10)<1e-8&&Math.abs(wind.v)<1e-8,'Wind from west must blow east');
+const t=C.terrain(120,100,110,110,60);assert.equal(t.uphill,90);assert.equal(t.aspect,270);assert(t.slope>9);
+const westFacing={slope:30,aspect:270,uphill:90},sun={alt:30,az:270};
+assert.equal(C.classify(westFacing,sun,90,wind).cps,3,'Wind east + uphill east + west-facing sun gives 3/3');
+assert.equal(C.classify(westFacing,sun,270,wind).cps,1,'Reverse travel loses wind and uphill alignment');
+assert.equal(C.classify(westFacing,{alt:-5,az:270},90,wind).cps,2,'Night removes the solar factor');
+const morning=C.classify({slope:50,aspect:90,uphill:270},{alt:15,az:90},90,wind);
+const evening=C.classify({slope:50,aspect:90,uphill:270},{alt:15,az:270},90,wind);
+assert(morning.incidence>evening.incidence,'East-facing aspect must respond to solar azimuth');
+assert.equal(C.classify({slope:0,aspect:0,uphill:0},{alt:-10,az:0},90,{u:0,v:0}).cps,0);
+console.log('9 verificações científicas exploratórias passaram. Não constitui validação operacional.');
