@@ -82,3 +82,14 @@ Polígonos 0.3: agrupar células contíguas pela combinação exata vento/subida
 ### Catálogo de mapas base
 
 Sete opções: OpenTopoMap, OpenStreetMap, Híbrido Esri, Satélite Esri sem nomes, Topográfico Esri, Cinza claro Esri e Carta Militar Itinerária CIGeoE 1:500 000 (Portugal continental). Fontes e créditos aparecem no mapa. CIGeoE: https://www.igeoe.pt/index.php?id=237 confirma serviço gratuito 1:500000 e licenciamento para 1:25000/1:50000. A carta regional é uma reprodução WMS georreferenciada datada (metadados em `dist/data/cigeoe-itineraria.json`), para evitar a restrição CORS do serviço oficial no WebGL; não é carta de detalhe nem atualização em tempo real. Sem credenciais licenciadas incluídas.
+
+
+## Atualização 0.4 — motor web e base de dados
+
+Entrada protegida no NAS: https://100.83.124.1:8181/firepotential/ (mesma conta e permissão do simulador). O NAS envia os pedidos ao workflow privado `web-firepotential.yml` do repositório `ignispyro-simulator`; WindNinja, relevo, polígonos, adjacências e propagação são calculados no GitHub. O serviço NAS apenas recolhe e valida o JSON com checksum e persiste na base PostGIS, esquema `firepotential`, com resultados associados à conta e chaves estrangeiras para as ligações. Não executa o solver localmente.
+
+A credencial de servidor preexistente foi verificada no próprio NAS e reutilizada por montagem só de leitura. Não é necessário copiar a credencial do computador. O limite de armazenamento de artefactos GitHub foi encontrado nos testes; o workflow calcula tudo num único runner e emite JSON comprimido, limitado e com SHA-256 nos registos privados, que o NAS recolhe automaticamente. Os rasters intermédios ficam no runner, e o resultado durável fica no PostGIS.
+
+Polígonos distinguem vento favorável/contrário/transversal, subida/descida/transversal/plano e incidência solar. Subir contra o vento e descer com o vento podem ter igual pontuação e mantêm combinações distintas. Com propagação ativada, a agregação também conserva classe ROS e direção calculadas; igualdade de classe não significa ROS numericamente idêntico em todos os pontos. As adjacências são sempre reconstruídas a partir da grelha dos polígonos finais, removendo contactos internos e duplicados.
+
+Propagação exige escolha explícita de combustível Anderson uniforme e humidade hipotética; a interface diz que não é um mapa observado de combustíveis. Vento, terreno e hora têm fontes reais; o cenário de combustível/humidade não recebe falsa validação operacional. Resultados guardados e épocas horárias podem ser reabertos pela interface web. GitHub Pages mantém a visualização pública e o botão para abrir a zona no motor web.

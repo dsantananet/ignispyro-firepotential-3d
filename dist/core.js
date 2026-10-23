@@ -27,7 +27,11 @@ function classify(t,sun,travel,wind){
  const s=t.slope>=5&&delta(travel,t.uphill)<=60;
  const incidence=sun.alt<=0?0:Math.max(0,Math.sin(sun.alt*rad)*Math.cos(t.slope*rad)+Math.cos(sun.alt*rad)*Math.sin(t.slope*rad)*Math.cos((sun.az-t.aspect)*rad));
  const a=incidence>=.35&&sun.alt>0;
- return {cps:Number(w)+Number(s)+Number(a),mask:Number(w)*4+Number(s)*2+Number(a),wind_ok:w,slope_ok:s,sun_ok:a,incidence,wind_speed:windSpeed*3.6,wind_from:wrap(toward+180)};
+ const wa=delta(travel,toward),sa=delta(travel,t.uphill);
+ const wind_regime=windSpeed<.5?'calm':wa<=60?'with_wind':wa>=120?'against_wind':'crosswind';
+ const slope_regime=t.slope<5?'flat':sa<=60?'upslope':sa>=120?'downslope':'cross_slope';
+ const solar_regime=sun.alt<=0?'night':a?'favorable_incidence':'low_or_no_incidence';
+ return {wind_regime,slope_regime,solar_regime,wind_angle_deg:wa,slope_angle_deg:sa,cps:Number(w)+Number(s)+Number(a),mask:Number(w)*4+Number(s)*2+Number(a),wind_ok:w,slope_ok:s,sun_ok:a,incidence,wind_speed:windSpeed*3.6,wind_from:wrap(toward+180)};
 }
 function uniform(from,speed){const a=wrap(from+180)*rad;return {u:Math.sin(a)*speed/3.6,v:Math.cos(a)*speed/3.6};}
 const api={solar,terrain,classify,uniform,wrap,delta,circularMean};

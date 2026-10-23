@@ -12,3 +12,5 @@
 #basemapPanel{max-height:calc(100dvh - 280px);overflow:auto}.preview-gray{background:repeating-linear-gradient(28deg,#e4e6e4 0 18px,#fff 19px 22px,#d3d8d6 23px 38px)}.preview-military{background:repeating-radial-gradient(ellipse at 30% 70%,#efe6c6 0 12px,#b4bfa5 13px 14px,#f4edd8 15px 25px)}.preview-military:after{content:"1:500 000";position:absolute;bottom:6px;left:5px;font-size:9px;color:#4c614b;background:#fff9;padding:3px;border-radius:3px}.basemap-grid{padding-bottom:3px}.basemap-grid button{min-height:113px}@media(max-width:800px){#basemapPanel{max-height:calc(65dvh - 160px)}}
 
 #basemapCredit{display:block;background:#fffffff2;border-radius:5px;padding:4px 8px;margin-top:5px;font-size:9px;text-align:right;color:#4d665a}
+
+#cloudConnection{padding:12px 0}#githubConnectionToken{width:100%;padding:9px;border:1px solid var(--line);border-radius:5px;margin-bottom:9px}#connectionStatus{font-size:11px;line-height:1.5}

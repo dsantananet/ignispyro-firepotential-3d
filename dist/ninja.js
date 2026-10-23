@@ -1,25 +1,33 @@
 (function(root){
 'use strict';
-const cache=new Map();
-async function json(url,options){const r=await fetch(url,options);let d;try{d=await r.json();}catch{throw Error('Abra esta zona no motor local para calcular WindNinja. O GitHub Pages apresenta o mapa, mas não executa o motor.');}if(!r.ok)throw Error(d.error||'Motor indisponível.');return d;}
-function requestFor({origin,radius,time,vegetation}){
- const bbox=turf.bbox(origin),lat=(bbox[1]+bbox[3])/2;
- const dy=radius/111.32,dx=dy/Math.cos(lat*Math.PI/180);
- return {bbox:[bbox[0]-dx,bbox[1]-dy,bbox[2]+dx,bbox[3]+dy],time,hours:1,vegetation};
-}
+const cache=new Map(),onNAS=location.hostname==='100.83.124.1'&&location.pathname.startsWith('/firepotential/');
+let currentResult=null;
+async function json(url,options){const r=await fetch(url,options);let d;try{d=await r.json();}catch{throw Error('Motor web indisponível.');}if(!r.ok)throw Error(d.error==='invalid_request_or_github_connection_missing'?'A ligação GitHub do NAS ainda não está configurada.':d.error||'Motor indisponível.');return d;}
+function requestFor({origin,radius,time,vegetation,hours=1,fuel_model,moisture}){const b=turf.bbox(origin),lat=(b[1]+b[3])/2,dy=radius/111.32,dx=dy/Math.cos(lat*Math.PI/180);return {bbox:[b[0]-dx,b[1]-dy,b[2]+dx,b[3]+dy],time,hours,vegetation,origin:origin.geometry,...(fuel_model?{fuel_model,moisture}:{})};}
+async function session(){const s=await json('/api/me');if(!s.authenticated)throw Error('Entre no portal para calcular.');return s;}
 async function calculate(scenario,status){
- const q=requestFor(scenario),key=JSON.stringify(q);if(cache.has(key))return cache.get(key);
- if(!['127.0.0.1','localhost'].includes(location.hostname))throw Error('WindNinja necessita do motor local autenticado. Use «Abrir esta zona no motor local».');
- const created=await json('api/windninja',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(q),signal:AbortSignal.timeout(10000)});
- for(let i=0;i<160;i++){
-  const job=await json('api/windninja/'+created.id,{signal:AbortSignal.timeout(10000)});status(job.message+' Pode demorar alguns minutos.');
-  if(job.status==='failed')throw Error(job.message+(job.run_url?' '+job.run_url:''));
+ const q=requestFor(scenario),key=JSON.stringify(q);if(cache.has(key)){currentResult=cache.get(key);return {...currentResult.field,cloud_job_id:currentResult.job_id};}
+ if(!onNAS)throw Error('Abra esta zona no motor web do NAS. Os cálculos serão feitos no GitHub.');
+ const s=await session(),created=await json('/api/firepotential/jobs',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':s.csrf},body:JSON.stringify(q),signal:AbortSignal.timeout(15000)});
+ for(let i=0;i<180;i++){
+  const job=await json('/api/firepotential/jobs/'+created.id,{signal:AbortSignal.timeout(15000)});status(job.message);
+  if(job.status==='failed')throw Error(job.message);
   if(job.status==='completed'){
-   const field=await json('api/windninja/'+created.id+'/field',{signal:AbortSignal.timeout(30000)});
-   if(Date.parse(field.valid_time)!==Date.parse(q.time)||!field.features?.length)throw Error('Campo fora da validade pedida.');
-   cache.set(key,field);if(cache.size>12)cache.delete(cache.keys().next().value);return field;
+   const result=await json('/api/firepotential/jobs/'+created.id+'/result',{signal:AbortSignal.timeout(30000)});
+   if(Date.parse(result.field.valid_time)!==Date.parse(q.time)||!result.field.features?.length)throw Error('Resultado fora da hora pedida.');
+   currentResult=result;cache.set(key,result);if(cache.size>8)cache.delete(cache.keys().next().value);return {...result.field,cloud_job_id:result.job_id};
   }await new Promise(r=>setTimeout(r,10000));
- }throw Error('O cálculo excedeu o tempo de espera. Consulte a execução no GitHub.');
+ }throw Error('O trabalho continua no GitHub. Consulte os resultados guardados no portal.');
 }
-root.CPSNinja={calculate,requestFor};
+async function refreshJobs(){if(!onNAS)return;const data=await json('/api/firepotential/jobs');const select=document.getElementById('savedJob');select.replaceChildren();for(const job of data.jobs){const option=document.createElement('option');option.value=job.id;option.textContent=`${String(job.created_at).slice(0,16)} · ${job.status}`;option.disabled=job.status!=='completed';select.append(option);}document.getElementById('savedCloud').hidden=false;document.getElementById('openSaved').disabled=!data.jobs.some(j=>j.status==='completed');}
+async function getSaved(id){if(!/^[a-f0-9-]{36}$/.test(id))throw Error('Resultado inválido.');currentResult=await json('/api/firepotential/jobs/'+id+'/result');return currentResult;}
+async function initialize(){
+ const form=document.getElementById('cloudConnection'),info=document.getElementById('ninjaInfo');
+ if(!onNAS)return;
+ try{const health=await json('/api/firepotential/status');info.textContent=health.github_configured?'Motor web: cálculo no GitHub; resultados e ligações na base de dados do NAS.':'Ligação GitHub do NAS por configurar. O servidor está preparado; os cálculos não foram ativados.';
+  await refreshJobs();const admin=await fetch('/api/admin/services');if(admin.ok)form.hidden=false;
+ }catch{info.textContent='Entre no portal e verifique a disponibilidade do motor web.';}
+ form.addEventListener('submit',async e=>{e.preventDefault();const input=document.getElementById('githubConnectionToken'),message=document.getElementById('connectionStatus');try{const s=await session();await json('/api/firepotential/connection',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':s.csrf},body:JSON.stringify({token:input.value}),signal:AbortSignal.timeout(30000)});message.textContent='Ligação verificada e guardada no NAS. Já pode gerar a análise.';info.textContent='GitHub ligado · cálculo remoto · resultados na base de dados.';}catch(error){message.textContent=error.message;}finally{input.value='';}});
+}
+root.CPSNinja={calculate,requestFor,initialize,refreshJobs,getSaved,getResult:()=>currentResult,onNAS};
 })(globalThis);

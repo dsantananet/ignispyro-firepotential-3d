@@ -10,3 +10,12 @@ assert.equal(morning.wind_ok,evening.wind_ok);assert.equal(morning.slope_ok,even
 assert.equal(morning.cps,3);assert.equal(evening.cps,2,'Loss of sunlight alone must move aligned wind+slope from3/3 to2/3');
 assert.notEqual(morning.mask,evening.mask,'Different combinations require a boundary');
 console.log('WindNinja bounds, circular bearings and loss of solar alignment verified.');
+
+const day={alt:30,az:270},hill={slope:30,uphill:90,aspect:270};
+const withUp=C.classify(hill,day,90,C.uniform(270,36));
+const upAgainst=C.classify(hill,day,90,C.uniform(90,36));
+const downWith=C.classify(hill,day,270,C.uniform(90,36));
+assert.equal(withUp.cps,3);assert.equal(upAgainst.cps,2);assert.equal(downWith.cps,2);
+assert.equal(upAgainst.slope_regime,'upslope');assert.equal(upAgainst.wind_regime,'against_wind');
+assert.equal(downWith.slope_regime,'downslope');assert.equal(downWith.wind_regime,'with_wind');
+assert.notEqual(upAgainst.mask,downWith.mask);
