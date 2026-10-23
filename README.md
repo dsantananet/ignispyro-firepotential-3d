@@ -66,3 +66,14 @@ Esta versão não executa WindNinja. Aceita um campo convertido para pontos GeoJ
 ## Próximos desenvolvimentos
 
 Executar WindNinja real sobre um MDT local validado, integrar combustíveis/barreiras e sombras topográficas; validar regras CPS com analistas e documentação original; avaliar estabilidade espacial dos polígonos e distinguir adjacência de transição de propagação. Publicação hospedada não concluída: ferramenta Sites indisponível na sessão de criação.
+
+
+## WindNinja automático · versão 0.3
+
+No computador com GitHub CLI autenticado, iniciar `node serve.cjs` e abrir http://127.0.0.1:4187. Escolher ponto/perímetro, raio, hora UTC e cobertura dominante, depois WindNinja automático. A aplicação envia um trabalho ao GitHub, acompanha a fila e carrega os vetores locais calculados. O trabalho usa o executável oficial 4.0.0 com SHA-256 fixado, relevo real Terrarium reprojetado para UTM a 100 m e buffer 25%, ECMWF horário interpolado em u/v. Não usa credenciais no navegador. A alteração de zona/hora/cobertura exige novo cálculo; resultados idênticos ficam em cache da sessão. O NAS não recebe um executor HTTPS nesta versão; Pages mantém o mapa e o botão para abrir o motor local.
+
+Artefacto `local-wind`: DEM real, GeoJSON por hora, GeoTIFF u/v este/norte verdadeiros por hora, manifesto, configuração e registos. O adaptador `integration/windninja_job.py` no simulador privado reprojeta para a grelha exata do cenário e liga os campos ao motor de comportamento/propagação existente. Exige combustíveis/humidades já fornecidos; não inventa dados para gerar um incêndio.
+
+Saída 10 m acima de vegetação, rugosidade uniforme escolhida; equivalência 10 m AGL não validada. Sem vento térmico diurno/estabilidade. ECMWF de ponto regional serve de inicialização, não assimila estações automaticamente. Emissão/ciclo não disponíveis nesta API: não se afirma previsão certificada.
+
+Polígonos 0.3: agrupar células contíguas pela combinação exata vento/subida/Sol; removida divisão arbitrária por quadrantes da vertente. Médias de direções circulares; combinações distintas 2/3 permanecem separadas. Setas por classes explícitas de velocidade em km/h. Seletor de mapas Topográfico/OpenStreetMap/Híbrido com satélite altera só o fundo e mantém a análise e o relevo 3D.
