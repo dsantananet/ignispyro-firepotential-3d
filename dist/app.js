@@ -14,7 +14,7 @@ let scenarioWind=null;
 if(launch.has('wind_from')&&launch.has('wind_speed')&&launch.get('wind_time')===launchTime&&Number.isFinite(+launch.get('wind_from'))&&+launch.get('wind_from')>=0&&+launch.get('wind_from')<360&&Number.isFinite(+launch.get('wind_speed'))&&+launch.get('wind_speed')>=0&&+launch.get('wind_speed')<=500){scenarioWind={from:+launch.get('wind_from'),speed:+launch.get('wind_speed'),time:new Date(initialTime).toISOString()};const option=document.createElement('option');option.value='scenario';option.textContent='Vento de referência do cenário do simulador';$('windMode').append(option);$('windMode').value='scenario';}
 $('day').value=initialTime.toISOString().slice(0,10);$('hour').value=initialTime.getUTCHours()+Math.floor(initialTime.getUTCMinutes()/30)/2;
 if(launch.has('radius')&&+launch.get('radius')>=1&&+launch.get('radius')<=5){$('radius').value=launch.get('radius');$('radiusValue').textContent=`${$('radius').value} km`;}
-if(launch.get('wind')==='ninja')$('windMode').value='ninja';
+if(launch.get('wind')==='ninja'||(['localhost','127.0.0.1'].includes(location.hostname)&&!scenarioWind))$('windMode').value='ninja';
 if(['grass','brush','trees'].includes(launch.get('vegetation')))$('roughness').value=launch.get('vegetation');
 try{const g=JSON.parse(launch.get('geometry')||'null');if(g&&g.type==='Polygon'&&JSON.stringify(g).length<12000){const f=turf.feature(g);if(!turf.kinks(f).features.length&&turf.area(f)>100)origin=f;}}catch{}
 const tileCache=new Map();
