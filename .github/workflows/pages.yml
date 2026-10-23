@@ -23,7 +23,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node test.cjs && node test-topology.cjs && node test-weather.cjs && node test-data.cjs && node test-ninja.cjs && node --check dist/app.js
+      - run: node test.cjs && node test-topology.cjs && node test-weather.cjs && node test-data.cjs && node test-ninja.cjs && node test-global.cjs && node --check dist/app.js
+      - run: python -m unittest discover -s engine -p test_global_extent.py
       - run: node tools/update-public-stations.cjs
       - run: node tools/update-mtg-snapshot.cjs
       - uses: actions/configure-pages@v5

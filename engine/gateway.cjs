@@ -7,7 +7,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms)),jobs=new Map();let active=null;
 function validate(q){
  if(!Array.isArray(q.bbox)||q.bbox.length!==4||!q.bbox.every(Number.isFinite))throw Error('Bounding box necessária.');
  const [w,s,e,n]=q.bbox;
- if(!(w>-179&&e<179&&w<e&&s>-70&&n<70&&s<n)||(e-w)*111320*Math.cos((s+n)/2*Math.PI/180)>24000||(n-s)*111320>24000)throw Error('Zona inválida ou superior a 24 km.');
+ if(!(w>-180&&e<180&&w<e&&s>-84.8&&n<84.8&&s<n)||(e-w)*111320*Math.cos((s+n)/2*Math.PI/180)>24000||(n-s)*111320>24000)throw Error('Zona inválida ou superior a 24 km.');
  if(typeof q.time!=='string'||!/(Z|[+-]\d\d:\d\d)$/.test(q.time)||!Number.isFinite(Date.parse(q.time)))throw Error('Hora UTC necessária.');
  if(!['grass','brush','trees'].includes(q.vegetation)||!Number.isInteger(q.hours)||q.hours<1||q.hours>6)throw Error('Rugosidade e 1–6 horas necessárias.');
  return {bbox:q.bbox,time:new Date(q.time).toISOString(),hours:q.hours,vegetation:q.vegetation};

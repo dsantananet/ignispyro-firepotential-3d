@@ -6,19 +6,14 @@ import rasterio
 from rasterio.io import MemoryFile
 from rasterio.transform import from_origin
 from pyproj import Transformer, Geod
+from global_extent import validate_extent,projected_epsg
 
 def get(url):
     with urllib.request.urlopen(url, timeout=60) as r:
         return r.read()
 
 def validate(q):
-    bbox=q['bbox']
-    if len(bbox)!=4 or any(type(v) not in (int,float) or not math.isfinite(v) for v in bbox):
-        raise ValueError('Finite bounding box required')
-    w,s,e,n=bbox
-    if not (-179<w<e<179 and -70<s<n<70): raise ValueError('Invalid extent')
-    if (e-w)*111320*math.cos(math.radians((s+n)/2))>24000 or (n-s)*111320>24000:
-        raise ValueError('Domain exceeds 24 km')
+    bbox=validate_extent(q['bbox'])
     if q.get('vegetation') not in ('grass','brush','trees'): raise ValueError('Choose surface roughness')
     time=dt.datetime.fromisoformat(q['time'].replace('Z','+00:00'))
     if time.tzinfo is None: raise ValueError('Timezone required')
@@ -27,7 +22,7 @@ def validate(q):
 
 def terrain(bbox,out):
     w,s,e,n=bbox;lon=(w+e)/2;lat=(s+n)/2
-    epsg=(32600 if lat>=0 else 32700)+int((lon+180)//6)+1
+    epsg=projected_epsg(lon,lat)
     forward=Transformer.from_crs(4326,epsg,always_xy=True)
     inverse=Transformer.from_crs(epsg,4326,always_xy=True)
     corners=[forward.transform(x,y) for x in (w,e) for y in (s,n)]
@@ -46,7 +41,7 @@ def terrain(bbox,out):
     ix=np.floor(tx).astype(int);iy=np.floor(ty).astype(int)
     dem=np.full((rows,cols),np.nan,dtype='float32');hashes={}
     for a,b in sorted(set(zip(ix.ravel(),iy.ravel()))):
-        url=f'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/{a}/{b}.png'
+        url=f'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/{a % 4096}/{b}.png'
         raw=get(url);hashes[f'12/{a}/{b}']=hashlib.sha256(raw).hexdigest()
         with MemoryFile(raw) as mem:
             with mem.open() as ds: rgb=ds.read()
