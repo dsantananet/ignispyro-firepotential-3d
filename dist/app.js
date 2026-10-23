@@ -135,7 +135,7 @@ function popup(feature,ll){const p=feature.properties;let html;
  else{let adj=p.adjacent;try{if(typeof adj==='string')adj=JSON.parse(adj);}catch{adj=[];}html=`<h3>${p.id} · CPS ${p.cps}/3</h3>Vento: ${p.wind_ok?'alinhado':'não alinhado'}<br>Subida: ${p.slope_ok?'alinhada':'não alinhada'}<br>Sol: ${p.sun_ok?'favorável':'não favorável'} (${Number(p.incidence).toFixed(2)})<hr>Área: ${p.area_ha} ha · cota média ${Number(p.elevation).toFixed(0)} m<br>Declive médio: ${Number(p.slope).toFixed(1)}°<br>Orientação média: ${Number(p.aspect).toFixed(0)}°<br>Vento médio: ${Number(p.wind_speed).toFixed(1)} km/h, de ${Number(p.wind_from).toFixed(0)}°<br>Avanço médio: ${p.travel===null?'variável':Number(p.travel).toFixed(0)+'°'}<br>Ângulo vento/avanço: ${Number(p.wind_angle_min).toFixed(0)}–${Number(p.wind_angle_max).toFixed(0)}°<br>Incidência solar: ${Number(p.sun_incidence_min).toFixed(2)}–${Number(p.sun_incidence_max).toFixed(2)}<br>Hora: ${result.metadata.valid_time.slice(11,16)} UTC<br><b>Adjacentes:</b> ${(adj||[]).join(', ')||'nenhum'}<br><small>Ligação geométrica. Avanço radial aproximado; sem previsão de passagem ou probabilidade.</small>`;}
  new maplibregl.Popup({maxWidth:'290px'}).setLngLat(ll).setHTML(html).addTo(map);
 }
-map.on('load',()=>{
+map.on('load',async()=>{
  map.setTerrain({source:'dem',exaggeration:1.35});
  for(const id of ['polys','nodes','edges','wind','prop','origin','draft','stations','mtg'])map.addSource(id,{type:'geojson',data:fc([])});
  map.addLayer({id:'poly-fill',type:'fill',source:'polys',paint:{'fill-color':'#facc35','fill-opacity':.58}});
@@ -148,7 +148,7 @@ map.on('load',()=>{
  map.addLayer({id:'draft-line',type:'line',source:'draft',paint:{'line-color':'#dc522a','line-width':3,'line-dasharray':[2,1]}});
  map.addLayer({id:'station-points',type:'circle',source:'stations',paint:{'circle-radius':['case',['get','aldeia'],7,5],'circle-color':['case',['get','aldeia'],'#a739a0','#2976a1'],'circle-stroke-color':'white','circle-stroke-width':1.5}});
  map.addLayer({id:'mtg-points',type:'circle',source:'mtg',paint:{'circle-radius':6,'circle-color':'#ff25b0','circle-stroke-color':'white','circle-stroke-width':1.5}});
- CPSBasemaps.install(map);ready=true;windControls();updateOrigin();setMode('inspect');generate();ensureStations().catch(e=>$('stationInfo').textContent=e.message);loadMTG();loadMTGWMS();
+ await CPSBasemaps.install(map);ready=true;windControls();updateOrigin();setMode('inspect');generate();ensureStations().catch(e=>$('stationInfo').textContent=e.message);loadMTG();loadMTGWMS();
 });
 map.on('click',e=>{if(!ready)return;if(mode==='point'){origin=turf.point([e.lngLat.lng,e.lngLat.lat]);invalidate();updateOrigin();renderStations();$('selection').textContent=`Ponto: ${e.lngLat.lat.toFixed(4)}°, ${e.lngLat.lng.toFixed(4)}°. Gere a análise.`;setMode('inspect');return;}if(mode==='polygon'){vertices.push([e.lngLat.lng,e.lngLat.lat]);draft();return;}
  const extra=map.queryRenderedFeatures(e.point,{layers:['mtg-points','station-points']});if(extra.length){const p=extra[0].properties;if(p.kind==='mtg_detection'){new maplibregl.Popup().setLngLat(e.lngLat).setText(`MTG · ${p.observed_at} · FRP ${p.frp_mw??'indisponível'} MW · deteção, não perímetro`).addTo(map);}else{const s=stationList.find(s=>s.id===p.id);if(s){$('stationChoice').value=s.id;new maplibregl.Popup().setLngLat(e.lngLat).setText(`${s.name} · ${s.source} · ${s.rows.at(-1)?.time||'sem observação de vento'} · selecione Observações Portugal para usar`).addTo(map);}}return;}

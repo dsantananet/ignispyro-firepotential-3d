@@ -1,0 +1,26 @@
+{
+  "source": "CIGeoE Carta Militar Itinerária de Portugal Continental",
+  "scale": "1:500000",
+  "service": "https://webservices.igeoe.pt/geoserver/cigeoe/carta_itineraria/wms",
+  "layer": "carta_itineraria",
+  "retrieved_at": "2026-10-23T21:38:28.347Z",
+  "scope": "Portugal continental; visão regional, não detalhe1:25000",
+  "coordinates": [
+    [
+      -10.181375732501833,
+      42.227067174988115
+    ],
+    [
+      -6.094116754458078,
+      42.227067174988115
+    ],
+    [
+      -6.094116754458078,
+      36.8809430936868
+    ],
+    [
+      -10.181375732501833,
+      36.8809430936868
+    ]
+  ]
+}

@@ -77,3 +77,8 @@ Artefacto `local-wind`: DEM real, GeoJSON por hora, GeoTIFF u/v este/norte verda
 Saída 10 m acima de vegetação, rugosidade uniforme escolhida; equivalência 10 m AGL não validada. Sem vento térmico diurno/estabilidade. ECMWF de ponto regional serve de inicialização, não assimila estações automaticamente. Emissão/ciclo não disponíveis nesta API: não se afirma previsão certificada.
 
 Polígonos 0.3: agrupar células contíguas pela combinação exata vento/subida/Sol; removida divisão arbitrária por quadrantes da vertente. Médias de direções circulares; combinações distintas 2/3 permanecem separadas. Setas por classes explícitas de velocidade em km/h. Seletor de mapas Topográfico/OpenStreetMap/Híbrido com satélite altera só o fundo e mantém a análise e o relevo 3D.
+
+
+### Catálogo de mapas base
+
+Sete opções: OpenTopoMap, OpenStreetMap, Híbrido Esri, Satélite Esri sem nomes, Topográfico Esri, Cinza claro Esri e Carta Militar Itinerária CIGeoE 1:500 000 (Portugal continental). Fontes e créditos aparecem no mapa. CIGeoE: https://www.igeoe.pt/index.php?id=237 confirma serviço gratuito 1:500000 e licenciamento para 1:25000/1:50000. A carta regional é uma reprodução WMS georreferenciada datada (metadados em `dist/data/cigeoe-itineraria.json`), para evitar a restrição CORS do serviço oficial no WebGL; não é carta de detalhe nem atualização em tempo real. Sem credenciais licenciadas incluídas.
