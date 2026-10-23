@@ -1,0 +1,314 @@
+{
+  "checked_at_utc": "2026-10-23T23:50:20.614903+00:00",
+  "scope": "native cloud execution, request integrity and geometry QA; not operational CPS validation",
+  "cases": [
+    {
+      "name": "Torre_Portugal",
+      "job_id": "3db22e2b-2096-4773-bb37-f764ab447fb1",
+      "status": "completed",
+      "run_id": 40038968150,
+      "error": null,
+      "sha256": "4c3d191eac2f6a5a6834660b9a88ba03a62044f70a75f3862033a94a99301111",
+      "stored_bytes": 773576,
+      "request_matches": true,
+      "origin": {
+        "type": "Point",
+        "coordinates": [
+          -7.6129,
+          40.3211
+        ]
+      },
+      "direction": "wind",
+      "analysis_grid_m": 300.0,
+      "crs": "EPSG:32629",
+      "physical_propagation": false,
+      "hours": [
+        {
+          "valid_time": "2026-10-24T14:00:00Z",
+          "polygons": 56,
+          "cps_counts": {
+            "2": 37,
+            "1": 12,
+            "3": 7
+          },
+          "area_by_cps_ha": {
+            "0": 0,
+            "1": 639.0,
+            "2": 1692.0,
+            "3": 1638.0
+          },
+          "wind_vectors": 4078,
+          "native_solver": true,
+          "wind_mean_kmh": 6.34,
+          "wind_from_mean_deg": 208.01,
+          "buffer_removed": false
+        },
+        {
+          "valid_time": "2026-10-24T15:00:00Z",
+          "polygons": 61,
+          "cps_counts": {
+            "1": 16,
+            "2": 39,
+            "3": 6
+          },
+          "area_by_cps_ha": {
+            "0": 0,
+            "1": 1233.0,
+            "2": 1116.0,
+            "3": 1620.0
+          },
+          "wind_vectors": 4078,
+          "native_solver": true,
+          "wind_mean_kmh": 6.68,
+          "wind_from_mean_deg": 216.76,
+          "buffer_removed": false
+        },
+        {
+          "valid_time": "2026-10-24T16:00:00Z",
+          "polygons": 54,
+          "cps_counts": {
+            "1": 34,
+            "3": 5,
+            "2": 15
+          },
+          "area_by_cps_ha": {
+            "0": 0,
+            "1": 2286.0,
+            "2": 198.0,
+            "3": 1485.0
+          },
+          "wind_vectors": 4078,
+          "native_solver": true,
+          "wind_mean_kmh": 5.61,
+          "wind_from_mean_deg": 230.29,
+          "buffer_removed": false
+        }
+      ],
+      "adjacency": [
+        {
+          "epoch": 0,
+          "links": 118,
+          "non_adjacent": 0
+        },
+        {
+          "epoch": 60,
+          "links": 128,
+          "non_adjacent": 0
+        },
+        {
+          "epoch": 120,
+          "links": 110,
+          "non_adjacent": 0
+        }
+      ],
+      "invalid_polygons": 0,
+      "invalid_display": 0
+    },
+    {
+      "name": "Geres_Portugal",
+      "job_id": "94f17799-8f85-45a6-8963-58c89f4ac7b4",
+      "status": "completed",
+      "run_id": 40040997288,
+      "error": null,
+      "sha256": "41b1050b94440c6558df94cd7a933f4f8655bd464107cd795ab2e0950c370c68",
+      "stored_bytes": 174549,
+      "request_matches": true,
+      "origin": {
+        "type": "Point",
+        "coordinates": [
+          -8.142,
+          41.735
+        ]
+      },
+      "direction": "wind",
+      "analysis_grid_m": 200.0,
+      "crs": "EPSG:32629",
+      "physical_propagation": false,
+      "hours": [
+        {
+          "valid_time": "2026-10-24T14:00:00Z",
+          "polygons": 34,
+          "cps_counts": {
+            "2": 29,
+            "3": 3,
+            "1": 2
+          },
+          "area_by_cps_ha": {
+            "0": 0,
+            "1": 160.0,
+            "2": 788.0,
+            "3": 816.0
+          },
+          "wind_vectors": 1604,
+          "native_solver": true,
+          "wind_mean_kmh": 9.35,
+          "wind_from_mean_deg": 266.96,
+          "buffer_removed": true
+        }
+      ],
+      "adjacency": [
+        {
+          "epoch": 0,
+          "links": 71,
+          "non_adjacent": 0
+        }
+      ],
+      "invalid_polygons": 0,
+      "invalid_display": 0
+    },
+    {
+      "name": "Monchique_Portugal",
+      "job_id": "e9d1d884-bc14-408c-bc04-055ea5d30b40",
+      "status": "completed",
+      "run_id": 40041017116,
+      "error": null,
+      "sha256": "e6bab2d94d3db9935513ea3ae84928f39dc0c1548bd82b2565de5ba8f388a053",
+      "stored_bytes": 155603,
+      "request_matches": true,
+      "origin": {
+        "type": "Point",
+        "coordinates": [
+          -8.596,
+          37.315
+        ]
+      },
+      "direction": "wind",
+      "analysis_grid_m": 200.0,
+      "crs": "EPSG:32629",
+      "physical_propagation": false,
+      "hours": [
+        {
+          "valid_time": "2026-10-24T14:00:00Z",
+          "polygons": 37,
+          "cps_counts": {
+            "1": 30,
+            "2": 4,
+            "0": 3
+          },
+          "area_by_cps_ha": {
+            "0": 156.0,
+            "1": 1052.0,
+            "2": 556.0,
+            "3": 0
+          },
+          "wind_vectors": 1600,
+          "native_solver": true,
+          "wind_mean_kmh": 0.8,
+          "wind_from_mean_deg": 333.02,
+          "buffer_removed": true
+        }
+      ],
+      "adjacency": [
+        {
+          "epoch": 0,
+          "links": 76,
+          "non_adjacent": 0
+        }
+      ],
+      "invalid_polygons": 0,
+      "invalid_display": 0
+    },
+    {
+      "name": "SerraMar_Brasil",
+      "job_id": "f4da5eed-2320-45b7-b7ed-e81c2daab933",
+      "status": "completed",
+      "run_id": 40041485783,
+      "error": null,
+      "sha256": "e34e33487f722546017857899c0a9c3db627cd377835ab0610093a8bb4a38e10",
+      "stored_bytes": 182530,
+      "request_matches": true,
+      "origin": {
+        "type": "Point",
+        "coordinates": [
+          -44.604,
+          -22.458
+        ]
+      },
+      "direction": "wind",
+      "analysis_grid_m": 200.0,
+      "crs": "EPSG:32723",
+      "physical_propagation": false,
+      "hours": [
+        {
+          "valid_time": "2026-10-24T14:00:00Z",
+          "polygons": 46,
+          "cps_counts": {
+            "1": 40,
+            "2": 6
+          },
+          "area_by_cps_ha": {
+            "0": 0,
+            "1": 968.0,
+            "2": 712.0,
+            "3": 0
+          },
+          "wind_vectors": 1600,
+          "native_solver": true,
+          "wind_mean_kmh": 0.39,
+          "wind_from_mean_deg": 89.37,
+          "buffer_removed": true
+        }
+      ],
+      "adjacency": [
+        {
+          "epoch": 0,
+          "links": 84,
+          "non_adjacent": 0
+        }
+      ],
+      "invalid_polygons": 0,
+      "invalid_display": 0
+    },
+    {
+      "name": "Svalbard_Noruega",
+      "job_id": "2ef08350-bac3-4fb3-bb87-becc0da72251",
+      "status": "completed",
+      "run_id": 40041498877,
+      "error": null,
+      "sha256": "b0f1ae0cd6f3eff85ab67ea3501dc30a10c5a95d8dcd0a01ad3a4e34046bfed2",
+      "stored_bytes": 155679,
+      "request_matches": true,
+      "origin": {
+        "type": "Point",
+        "coordinates": [
+          15.64,
+          78.22
+        ]
+      },
+      "direction": "wind",
+      "analysis_grid_m": 200.0,
+      "crs": "EPSG:32633",
+      "physical_propagation": false,
+      "hours": [
+        {
+          "valid_time": "2026-10-24T14:00:00Z",
+          "polygons": 21,
+          "cps_counts": {
+            "2": 7,
+            "1": 14
+          },
+          "area_by_cps_ha": {
+            "0": 0,
+            "1": 1364.0,
+            "2": 400.0,
+            "3": 0
+          },
+          "wind_vectors": 1600,
+          "native_solver": true,
+          "wind_mean_kmh": 10.93,
+          "wind_from_mean_deg": 114.41,
+          "buffer_removed": true
+        }
+      ],
+      "adjacency": [
+        {
+          "epoch": 0,
+          "links": 39,
+          "non_adjacent": 0
+        }
+      ],
+      "invalid_polygons": 0,
+      "invalid_display": 0
+    }
+  ]
+}
