@@ -19,3 +19,9 @@ assert.equal(withUp.cps,3);assert.equal(upAgainst.cps,2);assert.equal(downWith.c
 assert.equal(upAgainst.slope_regime,'upslope');assert.equal(upAgainst.wind_regime,'against_wind');
 assert.equal(downWith.slope_regime,'downslope');assert.equal(downWith.wind_regime,'with_wind');
 assert.notEqual(upAgainst.mask,downWith.mask);
+
+// The independent FirePotential must never forward simulator fuel inputs.
+const vm=require('node:vm'),fs=require('node:fs');
+const scope={location:{hostname:'example.test',pathname:'/'},turf:{bbox:()=>[-7.61,40.32,-7.61,40.32]}};vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'dist/ninja.js'),'utf8'),scope);
+const request=scope.CPSNinja.requestFor({origin:{geometry:{type:'Point',coordinates:[-7.61,40.32]}},radius:3,time:valid.time,hours:3,vegetation:'trees',fuel_model:5,moisture:{live:.9}});
+assert.equal(request.vegetation,'grass');assert.equal(request.hours,3);assert(!('fuel_model' in request));assert(!('moisture' in request));
