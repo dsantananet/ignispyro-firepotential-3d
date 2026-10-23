@@ -1,6 +1,6 @@
 (function(root){
 'use strict';
-const cache=new Map(),onNAS=location.hostname==='100.83.124.1'&&location.pathname.startsWith('/firepotential/');
+const cache=new Map(),onNAS=location.pathname.startsWith('/firepotential/');
 let currentResult=null;
 async function json(url,options){const r=await fetch(url,options);let d;try{d=await r.json();}catch{throw Error('Motor web indisponível.');}if(!r.ok)throw Error(d.error==='invalid_request_or_github_connection_missing'?'A ligação GitHub do NAS ainda não está configurada.':d.error||'Motor indisponível.');return d;}
 function requestFor({origin,radius,time,hours=1}){const b=turf.bbox(origin),lat=(b[1]+b[3])/2,dy=radius/111.32,dx=dy/Math.cos(lat*Math.PI/180);return {bbox:[b[0]-dx,b[1]-dy,b[2]+dx,b[3]+dy],time,hours,vegetation:'grass',origin:origin.geometry};}
@@ -24,6 +24,7 @@ async function getSaved(id){if(!/^[a-f0-9-]{36}$/.test(id))throw Error('Resultad
 async function initialize(){
  const form=document.getElementById('cloudConnection'),info=document.getElementById('ninjaInfo');
  if(!onNAS)return;
+ document.getElementById('openLocal').hidden=true;
  try{const health=await json('/api/firepotential/status');info.textContent=health.github_configured?'Motor web: cálculo no GitHub; resultados e ligações na base de dados do NAS.':'Ligação GitHub do NAS por configurar. O servidor está preparado; os cálculos não foram ativados.';
   await refreshJobs();const admin=await fetch('/api/admin/services');if(admin.ok)form.hidden=false;
  }catch{info.textContent='Entre no portal e verifique a disponibilidade do motor web.';}
