@@ -4,6 +4,7 @@
 const rad=Math.PI/180,deg=180/Math.PI;
 const wrap=x=>(x%360+360)%360;
 const delta=(a,b)=>Math.abs(((a-b+540)%360)-180);
+function circularMean(values){const x=values.reduce((s,v)=>s+Math.sin(v*rad),0),y=values.reduce((s,v)=>s+Math.cos(v*rad),0);return Math.hypot(x,y)<1e-8?null:wrap(Math.atan2(x,y)*deg);}
 function solar(date,lat,lon){
  const d=(date.getTime()-Date.UTC(2000,0,1,12))/86400000;
  const L=wrap(280.46+.9856474*d),g=wrap(357.528+.9856003*d)*rad;
@@ -29,6 +30,6 @@ function classify(t,sun,travel,wind){
  return {cps:Number(w)+Number(s)+Number(a),mask:Number(w)*4+Number(s)*2+Number(a),wind_ok:w,slope_ok:s,sun_ok:a,incidence,wind_speed:windSpeed*3.6,wind_from:wrap(toward+180)};
 }
 function uniform(from,speed){const a=wrap(from+180)*rad;return {u:Math.sin(a)*speed/3.6,v:Math.cos(a)*speed/3.6};}
-const api={solar,terrain,classify,uniform,wrap,delta};
+const api={solar,terrain,classify,uniform,wrap,delta,circularMean};
 root.CPS=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:window);

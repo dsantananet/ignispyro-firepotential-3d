@@ -101,6 +101,11 @@ def run(q,package,out):
         inverse=Transformer.from_crs(crs,4326,always_xy=True);lons,lats=inverse.transform(xx,yy);nl,nla=inverse.transform(xx,yy+10)
         north,_,_=Geod(ellps='WGS84').inv(lons,lats,nl,nla)
         bearing=np.radians(b+north);us=-a*np.sin(bearing);vs=-a*np.cos(bearing)
+        vector_dir=out/f'vectors-{i}';vector_dir.mkdir()
+        for name,component in [('u',us),('v',vs)]:
+            with rasterio.open(vector_dir/(name+'.tif'),'w',driver='GTiff',height=a.shape[0],width=a.shape[1],count=1,dtype='float32',crs=crs,transform=aff,nodata=-9999,compress='deflate') as ds:
+                ds.write(np.where(np.isfinite(component),component,-9999).astype('float32'),1)
+                ds.set_band_unit(1,'m/s');ds.update_tags(vector_reference='true_east_north',height_m='10',height_reference='above_vegetation')
         mask=(lons>=w-.002)&(lons<=e+.002)&(lats>=s-.002)&(lats<=n+.002)
         if not mask.any() or not np.isfinite(a[mask]).all() or not np.isfinite(b[mask]).all(): raise ValueError('Incomplete output coverage')
         if np.any(a[mask]<0) or np.any(a[mask]>100): raise ValueError('Invalid native wind speeds')
@@ -109,7 +114,7 @@ def run(q,package,out):
         for row,col in zip(*np.where(mask)):
             field['features'].append({'type':'Feature','geometry':{'type':'Point','coordinates':[round(float(lons[row,col]),7),round(float(lats[row,col]),7)]},'properties':{'u':round(float(us[row,col]),5),'v':round(float(vs[row,col]),5)}})
         filename=f'field-{i}.geojson';(out/filename).write_text(json.dumps(field,separators=(',',':')),encoding='utf-8')
-        manifest['fields'].append({'path':filename,'valid_time':valid,'vectors':len(field['features']),'speed_min_ms':float(a[mask].min()),'speed_max_ms':float(a[mask].max())})
+        manifest['fields'].append({'path':filename,'u':f'vectors-{i}/u.tif','v':f'vectors-{i}/v.tif','valid_time':valid,'end_at':(time+dt.timedelta(hours=1)).isoformat().replace('+00:00','Z'),'available_at':retrieved,'vectors':len(field['features']),'speed_min_ms':float(a[mask].min()),'speed_max_ms':float(a[mask].max())})
         (out/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
     return manifest
 

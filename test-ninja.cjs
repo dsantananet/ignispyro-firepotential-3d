@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict'),{validate}=require('./engine/gateway.cjs'),C=require('./dist/core.js');
+const valid={bbox:[-7.65,40.29,-7.58,40.35],time:'2026-10-24T14:00:00Z',hours:2,vegetation:'grass'};
+assert.equal(validate(valid).hours,2);
+for(const change of [{bbox:[0,0,180,80]},{hours:7},{vegetation:'invented'},{time:'2026-10-24T14:00:00'},{bbox:[NaN,40,-7,41]}])assert.throws(()=>validate({...valid,...change}));
+assert(C.delta(C.circularMean([359,1]),0)<1e-9,'Directions straddling north must stay north');
+assert.equal(C.circularMean([90,270]),null,'Opposed headings have no representative mean');
+const terrain={slope:45,aspect:90,uphill:270},wind=C.uniform(90,36);
+const morning=C.classify(terrain,{alt:20,az:90},270,wind),evening=C.classify(terrain,{alt:20,az:270},270,wind);
+assert.equal(morning.wind_ok,evening.wind_ok);assert.equal(morning.slope_ok,evening.slope_ok);
+assert.equal(morning.cps,3);assert.equal(evening.cps,2,'Loss of sunlight alone must move aligned wind+slope from3/3 to2/3');
+assert.notEqual(morning.mask,evening.mask,'Different combinations require a boundary');
+console.log('WindNinja bounds, circular bearings and loss of solar alignment verified.');
