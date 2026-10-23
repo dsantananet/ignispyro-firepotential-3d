@@ -14,3 +14,5 @@
 #basemapCredit{display:block;background:#fffffff2;border-radius:5px;padding:4px 8px;margin-top:5px;font-size:9px;text-align:right;color:#4d665a}
 
 #cloudConnection{padding:12px 0}#githubConnectionToken{width:100%;padding:9px;border:1px solid var(--line);border-radius:5px;margin-bottom:9px}#connectionStatus{font-size:11px;line-height:1.5}
+
+.origin-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px}.origin-methods button:last-child{grid-column:1/-1}#coordinateForm{padding:12px;margin-top:10px;border:1px solid #cbd6d0;border-radius:10px;background:#edf1eb}#coordinateForm button{width:100%;margin-top:10px}
