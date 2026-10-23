@@ -2,7 +2,7 @@
 'use strict';
 const cache=new Map(),onNAS=location.pathname.startsWith('/firepotential/');
 let currentResult=null;
-async function json(url,options){const r=await fetch(url,options);let d;try{d=await r.json();}catch{throw Error('Motor web indisponível.');}if(!r.ok)throw Error(d.error==='invalid_request_or_github_connection_missing'?'A ligação GitHub do NAS ainda não está configurada.':d.error||'Motor indisponível.');return d;}
+async function json(url,options){const r=await fetch(url,options);let d;try{d=await r.json();}catch{throw Error('Motor web indisponível.');}if(!r.ok){const messages={outside_terrain_coverage:'Relevo disponível apenas entre as latitudes -84.8° e 84.8°.',antimeridian_split_or_invalid_longitude:'Verifique a longitude. Zonas que cruzem o meridiano 180° devem ser divididas.',domain_limit_24km:'Escolha uma zona com menos de 24 km por lado.',two_active_jobs_limit:'Já há dois cálculos ativos. Abra um resultado guardado ou aguarde a conclusão.',github_connection_missing:'A ligação GitHub do NAS não está configurada.'};throw Error(messages[d.error]||d.error||'Motor indisponível.');}return d;}
 function requestFor({origin,radius,time,hours=1,travel_mode='wind',travel_bearing}){const b=turf.bbox(origin),lat=(b[1]+b[3])/2,dy=radius/111.32,dx=dy/Math.cos(lat*Math.PI/180);return {bbox:[b[0]-dx,b[1]-dy,b[2]+dx,b[3]+dy],time,hours,vegetation:'grass',origin:origin.geometry,travel_mode,...(travel_mode==='fixed'?{travel_bearing}: {})};}
 async function session(){const s=await json('/api/me');if(!s.authenticated)throw Error('Entre no portal para calcular.');return s;}
 async function calculate(scenario,status){
