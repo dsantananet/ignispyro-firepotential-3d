@@ -1,0 +1,46 @@
+name: WindNinja selected area
+run-name: WindNinja ${{ inputs.job_id }}
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        required: true
+        type: string
+      request:
+        description: Bounded bbox, UTC time, hours and vegetation JSON
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  wind:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install numpy rasterio pyproj
+      - name: Read request as data
+        shell: pwsh
+        env:
+          WIND_REQUEST: ${{ inputs.request }}
+        run: Set-Content -LiteralPath request.json -Value $env:WIND_REQUEST -Encoding utf8
+      - name: Verified official WindNinja 4.0.0
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://github.com/firelab/windninja/releases/download/4.0.0/firelab-WindNinja-4.0.0-win64.zip -OutFile "$env:RUNNER_TEMP/wind.zip"
+          if ((Get-FileHash "$env:RUNNER_TEMP/wind.zip" -Algorithm SHA256).Hash.ToLower() -ne 'ef08ceb9c95430674a6f047fe2ac4f6cb06e160a3dfc9499644873056b58ed48') { throw 'Asset hash mismatch' }
+          Expand-Archive "$env:RUNNER_TEMP/wind.zip" "$env:RUNNER_TEMP/wind"
+          & 7z x "$env:RUNNER_TEMP/wind/WindNinja-4.0.0-win64.exe" "-o$env:RUNNER_TEMP/wind/extracted" -y | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Extraction failed' }
+      - name: Real terrain and hourly local wind
+        shell: pwsh
+        run: python engine/run_windninja.py --request request.json --package "$env:RUNNER_TEMP/wind/extracted" --out outputs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: local-wind
+          path: outputs/
+          retention-days: 7
