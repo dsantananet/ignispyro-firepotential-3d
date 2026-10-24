@@ -25,3 +25,6 @@ Exposição no hemisfério norte: sequência típica este de manhã, sul a meio 
 
 ## Próxima evolução científica
 Separar uma camada de pré-aquecimento potencial da simples incidência, com curva diária/aquecer/arrefecer e evidência de radiação/sombra; validar com observações locais. Qualquer estimativa térmica deve ter método e incerteza identificados. O consumidor simulador terá os seus próprios combustíveis, humidades e física e poderá usar estas camadas, sem transformar a pontuação CPS numa velocidade automática.
+
+## Relação com Castellnou et al.(2019)
+O artigo descreve unidades de comportamento esperado homogéneo e conectividade dinâmica dependente do cenário, experiência e oportunidades operacionais. As nossas classes geométricas e adjacências são uma camada de apoio exploratória: não reproduzem por si só toda essa metodologia nem demonstram passagem do fogo entre polígonos. Fonte: https://link.springer.com/article/10.1186/s42408-019-0048-6 .
