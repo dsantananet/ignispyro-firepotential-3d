@@ -25,5 +25,22 @@ function aggregate(features,edges,turf){
  for(const f of polygons)f.properties.adjacent=byId.get(f.properties.id).properties.adjacent;
  return {polygons,nodes,edges:links,original_count:features.length};
 }
-const api={aggregate,key};root.CPSZones=api;if(typeof module!=='undefined')module.exports=api;
+function dominant(z,turf,cellMetres){
+ const maxHa=2*cellMetres*cellMetres/10000;
+ if(!Number.isFinite(maxHa)||maxHa<=0)return {...z,exceptions:[]};
+ const byId=new Map(z.polygons.map(f=>[f.properties.id,f])),targets=new Map(),exceptions=[];
+ const ordered=z.polygons.slice().sort((a,b)=>a.properties.area_ha-b.properties.area_ha);
+ for(const f of ordered){const p=f.properties;if(p.area_ha>maxHa+1e-6)continue;
+  const neighbours=z.edges.filter(e=>e.properties.from===p.id||e.properties.to===p.id).map(e=>({edge:e,host:byId.get(e.properties.from===p.id?e.properties.to:e.properties.from)})).filter(n=>n.host&&n.host.properties.area_ha>=10*p.area_ha&&n.host.properties.wind_ok===p.wind_ok&&n.host.properties.direction_reference===p.direction_reference);
+  neighbours.sort((a,b)=>b.edge.properties.shared_boundary_m-a.edge.properties.shared_boundary_m);
+  if(!neighbours.length)continue;targets.set(p.id,neighbours[0].host.properties.id);
+  exceptions.push({...f,properties:{...p,kind:'alignment_exception',reason:'small_patch_in_dominant_cartographic_zone',original_alignment_mask:p.alignment_mask}});
+ }
+ const target=id=>targets.has(id)?target(targets.get(id)):id;
+ const copied=z.polygons.map(f=>{const host=byId.get(target(f.properties.id));return {...f,properties:{...f.properties,wind_ok:host.properties.wind_ok,slope_ok:host.properties.slope_ok,sun_ok:host.properties.sun_ok}};});
+ const result=aggregate(copied,z.edges,turf);
+ for(const f of result.polygons){const exc=exceptions.filter(e=>e.properties.source_unit_ids.some(id=>f.properties.source_unit_ids.includes(id)));if(exc.length){f.properties.mixed_alignment=true;f.properties.exception_area_ha=exc.reduce((a,e)=>a+e.properties.area_ha,0);f.properties.exception_count=exc.length;}}
+ return {...result,exceptions,exact_zone_count:z.polygons.length,cartographic_generalisation:{max_patch_cells:2,max_patch_ha:maxHa,max_patch_host_fraction:.1,wind_component_preserved:true,original_classes_preserved_in_exceptions:true}};
+}
+const api={aggregate,dominant,key};root.CPSZones=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:window);
