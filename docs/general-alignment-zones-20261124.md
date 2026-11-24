@@ -18,6 +18,29 @@ and drops internal links after merging. Export uses the new zone IDs and links.
 General zones use their analytical geometry rather than individually smoothed
 boundaries. Terrain/solar background values are area-weighted summaries.
 
+## Optional small patches in the dominant cartographic zone
+
+The default overview additionally integrates patches up to two analysis cells
+and at most 10% of a neighbouring host's area. It selects the eligible host
+sharing the longest boundary, preserves the wind favorable component and the
+direction reference, and never fills a missing-data gap. These are experimental
+cartographic parameters, not physical or terrain-slope validation thresholds.
+
+The patch's original classification and geometry are retained as an
+`alignment_exception` feature in the download and shown as a selectable point.
+Mixed zones are explicitly labelled as dominant alignment, with the number and
+area of exceptions. Disabling “Integrar pequenas manchas” restores the exact
+component zones. Existing saved records remain unchanged. The general download
+must not be interpreted as a homogeneous alignment raster: its metadata marks
+changed display classes and the preserved original exceptions.
+
+For the same saved scenario, 31 original polygons become 21 exact zones, then
+7 dominant overview zones with 9 links and 11 retained exceptions (300 m cells,
+maximum patch 18 ha). Coverage is preserved; visible areas by class intentionally
+change in the overview. Original class areas are recoverable from the exact
+zones and exceptions. This directly addresses small isolated patches identified
+by the analyst. Small terrain slope was not established from the screenshot.
+
 For a saved real-terrain scenario with hypothetical west wind at 20 km/h,
 31 polygons/60 links become 21 zones/37 links. Coverage and factor combinations
 are conserved within numerical tolerance. The reduction depends on the case.
