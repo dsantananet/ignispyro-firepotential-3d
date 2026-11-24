@@ -259,6 +259,7 @@ function generalizeResult(){
  result.nodes.features.splice(0,result.nodes.features.length,...z.nodes);
  result.edges.features.splice(0,result.edges.features.length,...z.edges);
  result.displayPolys=fc(z.polygons);
+ if(result.corridor)result.corridorIds=new Set(result.polys.features.filter(f=>turf.booleanIntersects(f,result.corridor)).map(f=>f.properties.id));
  result.metadata.general_zones={original_polygons:exact.original_count,exact_zones:exact.polygons.length,zones:z.polygons.length,rule:'same_directional_alignment_components_edge_connected;physical_values_on_vectors;optional_small_patch_generalisation'};
  result.metadata.smoothing={method:'none_general_zone_analytical_geometry',analytical_geometry_preserved:true};
 }
