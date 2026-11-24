@@ -20,7 +20,7 @@ Exposição no hemisfério norte: sequência típica este de manhã, sul a meio 
 - Sol é incidência geométrica potencial. Não há medição/validação de temperatura de combustível, humidade, sombreamento topográfico, nuvens ou memória térmica. Não chamar ao terceiro fator pré-aquecimento medido ou disponibilidade real da vegetação.
 - Os limiares0.5m/s,60graus,5graus de declive e0.35 de incidência são hipóteses do protótipo. Os documentos estudados não os estabelecem como regras numéricas universais de Campbell.
 - WindNinja é nativo e usa relevo e vento horário ECMWF. Rugosidade fixa de terreno aberto é uma hipótese aerodinâmica, não vegetação assimilada. O modelo térmico diurno WindNinja está desligado; não afirmar que as brisas térmicas do gráfico foram calculadas.
-- Cada região agrupa células contíguas com a mesma combinação/regimes. As ligações são fronteiras comuns dos polígonos finais, sem tempos de passagem ou probabilidades. Chave persistente:(job,hora,polígono); o númeroP1 não identifica a mesma região entre horas.
+- Cada zona geral agrupa células contíguas com os mesmos fatores favoráveis de vento, subida e Sol. Velocidade, intensidade e regimes secundários não criam fronteiras. Os diferentes pares de 2/3 permanecem separados. Direção e velocidade locais ficam nos vetores. As ligações representam adjacência dos polígonos finais, sem tempos de passagem ou probabilidades. IDs são locais à hora. Ver general-alignment-zones-20261124.md.
 - Uso mundial onde o MDT e a previsão têm cobertura. Projeções métricas por hemisfério, tratamento polar e limites explícitos do fornecedor; regiões que atravessem o antimeridiano devem ser divididas. Falta de dados bloqueia a análise.
 
 ## Próxima evolução científica
