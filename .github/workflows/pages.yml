@@ -29,7 +29,7 @@ jobs:
       - run: node tools/update-public-stations.cjs
       - run: node tools/update-mtg-snapshot.cjs
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5.0.0
         with:
           path: dist
       - name: Wait for uploaded Pages artifact to become visible
@@ -48,4 +48,5 @@ jobs:
           exit 1
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5.0.1
+
