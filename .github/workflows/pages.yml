@@ -41,7 +41,8 @@ jobs:
         run: |
           for attempt in {1..20}; do
             count=$(gh api "repos/$GH_REPO/actions/runs/$RUN_ID/artifacts" --jq '[.artifacts[] | select(.name == "github-pages" and .expired == false)] | length')
-            if [ "$count" -gt 0 ]; then exit 0; fi
+            # REST visibility can precede the artifact service used by deploy-pages.
+            if [ "$count" -gt 0 ]; then sleep 15; exit 0; fi
             sleep 2
           done
           echo "Uploaded github-pages artifact is still unavailable in the Actions API."
