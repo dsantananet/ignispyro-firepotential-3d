@@ -7,6 +7,7 @@ on:
     - cron: '7,17,27,37,47,57 * * * *'
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 concurrency:
@@ -31,6 +32,20 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+      - name: Wait for uploaded Pages artifact to become visible
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          for attempt in {1..20}; do
+            count=$(gh api "repos/$GH_REPO/actions/runs/$RUN_ID/artifacts" --jq '[.artifacts[] | select(.name == "github-pages" and .expired == false)] | length')
+            if [ "$count" -gt 0 ]; then exit 0; fi
+            sleep 2
+          done
+          echo "Uploaded github-pages artifact is still unavailable in the Actions API."
+          exit 1
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
