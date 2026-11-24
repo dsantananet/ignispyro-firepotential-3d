@@ -1,0 +1,18 @@
+const assert=require('node:assert/strict'),C=require('./dist/corridor.js');
+const samples=[];for(let x=-.02;x<=.02;x+=.001)for(let y=-.02;y<=.02;y+=.001)samples.push({coordinates:[x,y],u:5,v:0});
+const straight=C.trace([0,0],samples,[-.02,-.02,.02,.02],200);
+assert(straight.points.some(p=>p.coordinates[0]<0),'Rear coverage');
+assert(straight.points.some(p=>p.coordinates[0]>0),'Forward coverage');
+assert(straight.points.every(p=>Math.abs(p.coordinates[1])<1e-12),'East wind stays east');
+assert(straight.points.at(-1).width_m>200,'Widens with distance');
+assert(straight.points.every(p=>Math.abs(p.coordinates[0])<=.02),'Domain respected');
+assert.equal(C.trace([0,0],samples.map(s=>({...s,u:0})),[-.02,-.02,.02,.02],200).points.length,1,'Calm has no invented path');
+const curved=samples.map(s=>({...s,u:s.coordinates[0]<.005?5:2,v:s.coordinates[0]<.005?0:5}));
+assert(C.trace([0,0],curved,[-.02,-.02,.02,.02],200).points.at(-1).coordinates[1]>.005,'Follows local turn');
+assert.equal(C.trace([0,0],[{coordinates:[1,1],u:5,v:0}],[-.02,-.02,.02,.02],200).points.length,1,'Stops outside wind coverage');
+console.log('Corridor: flanks, rear, curvature, calm, coverage and bounds passed.');
+const segment=(a,b,minutes)=>({geometry:{type:'LineString',coordinates:[a,b]},properties:{product:'major_path',minutes}});
+const route=C.fromPaths([segment([0,0],[.001,0],1),segment([.001,0],[.001,.001],2)]);
+assert.deepEqual(route.points.map(p=>p.coordinates),[[0,0],[.001,0],[.001,.001]]);
+assert(route.points.at(-1).width_m>route.points[0].width_m);
+assert.equal(C.fromPaths([]),null);
