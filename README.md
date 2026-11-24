@@ -58,3 +58,14 @@ No GeoJSON de exportação, `schema_version=firepotential/1.0`, `solver_ready=fa
 Servir `dist/` com HTTP ou executar `node serve.cjs` para visualização local. O fluxo cloud operacional usa o portal, sem motor local. `engine/gateway.cjs` é uma ponte local histórica, não requisito desta instalação.
 
 Verificações: `node test.cjs`, `node test-topology.cjs`, `node test-weather.cjs`, `node test-data.cjs`, `node test-ninja.cjs`, `node test-global.cjs`; `python -m unittest discover -s engine -p test_global_extent.py`. Pages verifica e publica `dist/`; atualiza observações/MTG em agenda sujeita ao fornecedor e ao GitHub. O navegador não envia outro trabalho cloud só por alterar uma hora.
+
+
+## Corredor preferencial — revisão de 24/11/2026
+
+O controlo **Corredor preferencial** seleciona os polígonos completos que intersectam uma faixa curva. Quando o resultado inclui uma rede física de caminhos principais, segue o ramo principal que alcança o maior tempo de chegada. Na ausência dessa rede, segue o campo de vento local, sem calcular propagação. A referência radial mantém o domínio completo; o azimute fixo usa a direção escolhida pelo analista.
+
+A faixa tem meia largura inicial igual a uma célula e cresce 12% da distância percorrida. A retaguarda usa o vento local em sentido inverso, limitada a 15% da diagonal do domínio. Estes valores são opções cartográficas experimentais, sem calibração em incêndios reais. Não descrevem um intervalo probabilístico. O cálculo para com vento inferior a 0,5 m/s, fora da cobertura ou no limite espacial.
+
+A seleção reduz números e ligações sobrepostos. Desmarcar o controlo restaura todos os polígonos. O GeoJSON descarrega a mesma seleção e os contactos cujos dois extremos estão presentes, com a origem, o contorno do corredor e metadados da seleção. Os polígonos são completos, não recortados; os valores CPS permanecem intactos. O contorno seleciona uma área de análise, sem transformar vento em perímetro previsto.
+
+Verificação: `node test-corridor.cjs`, restante suite e ensaio no navegador com terreno real e vento manual hipotético: 120→31 polígonos, 247→60 contactos. Estes números descrevem apenas esse ensaio.
