@@ -7,6 +7,7 @@ from rasterio.io import MemoryFile
 from rasterio.transform import from_origin
 from pyproj import Transformer, Geod
 from global_extent import validate_extent,projected_epsg
+from weather_transport import load_weather
 
 def get(url):
     with urllib.request.urlopen(url, timeout=60) as r:
@@ -57,8 +58,8 @@ def terrain(bbox,out):
 def run(q,package,out):
     start=validate(q);out=Path(out).resolve();out.mkdir(parents=True,exist_ok=True)
     w,s,e,n=q['bbox'];lat=(s+n)/2;lon=(w+e)/2
-    weather=json.loads(get(f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=UTC&forecast_days=7&models=ecmwf_ifs025'))
-    retrieved=dt.datetime.now(dt.timezone.utc).isoformat();times=[dt.datetime.fromisoformat(t).replace(tzinfo=dt.timezone.utc) for t in weather['hourly']['time']]
+    weather,retrieved,weather_transport=load_weather(q)
+    times=[dt.datetime.fromisoformat(t).replace(tzinfo=dt.timezone.utc) for t in weather['hourly']['time']]
     requested=[start+dt.timedelta(hours=i) for i in range(q.get('hours',1))]
     if min(requested)<times[0] or max(requested)>times[-1]: raise ValueError('Selected time outside current ECMWF forecast')
     dem,dem_meta=terrain(q['bbox'],out)
@@ -105,7 +106,7 @@ def run(q,package,out):
         if not mask.any() or not np.isfinite(a[mask]).all() or not np.isfinite(b[mask]).all(): raise ValueError('Incomplete output coverage')
         if np.any(a[mask]<0) or np.any(a[mask]>100): raise ValueError('Invalid native wind speeds')
         valid=time.isoformat().replace('+00:00','Z')
-        field={'type':'FeatureCollection','wind_source':'WindNinja 4.0.0 / ECMWF IFS 0.25 via Open-Meteo','valid_time':valid,'height_m':10,'height_reference':'above_vegetation','vegetation':q['vegetation'],'roughness_validated':False,'native_solver_executed':executed,'windninja':executed,'dem':dem_meta,'weather':{'source':'ECMWF via Open-Meteo','model':'ecmwf_ifs025','retrieved_at':retrieved,'issued_at':None,'input_height_reference':'10m_AGL_model; above-vegetation transfer unvalidated','speed_m_s':speed,'direction_from_true_deg':direction,'interpolation':'linear_uv','bracket':[times[k].isoformat(),times[k2].isoformat()]},'resolution_m':100,'mesh_choice':'coarse','diurnal_model':False,'stability_model':False,'operationally_validated':False,'features':[]}
+        field={'type':'FeatureCollection','wind_source':'WindNinja 4.0.0 / ECMWF IFS 0.25 via Open-Meteo','valid_time':valid,'height_m':10,'height_reference':'above_vegetation','vegetation':q['vegetation'],'roughness_validated':False,'native_solver_executed':executed,'windninja':executed,'dem':dem_meta,'weather':{'source':'ECMWF via Open-Meteo','model':'ecmwf_ifs025','transport':weather_transport,'retrieved_at':retrieved,'issued_at':None,'input_height_reference':'10m_AGL_model; above-vegetation transfer unvalidated','speed_m_s':speed,'direction_from_true_deg':direction,'interpolation':'linear_uv','bracket':[times[k].isoformat(),times[k2].isoformat()]},'resolution_m':100,'mesh_choice':'coarse','diurnal_model':False,'stability_model':False,'operationally_validated':False,'features':[]}
         for row,col in zip(*np.where(mask)):
             field['features'].append({'type':'Feature','geometry':{'type':'Point','coordinates':[round(float(lons[row,col]),7),round(float(lats[row,col]),7)]},'properties':{'u':round(float(us[row,col]),5),'v':round(float(vs[row,col]),5)}})
         filename=f'field-{i}.geojson';(out/filename).write_text(json.dumps(field,separators=(',',':')),encoding='utf-8')
